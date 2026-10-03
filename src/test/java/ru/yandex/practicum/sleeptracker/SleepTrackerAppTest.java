@@ -126,4 +126,81 @@ class SleepTrackerAppTest {
 
         assertEquals(2, SleepTrackerApp.countBadQualitySessions(sessions));
     }
+
+    @Test
+    void countSleeplessNights_shouldCountFirstNight_whenSessionStartsInEvening() {
+        List<SleepingSession> sessions = List.of(
+                session("01.10.25 23:00", "02.10.25 07:00", SleepingQuality.GOOD)
+        );
+
+        assertEquals(1, SleepTrackerApp.countSleeplessNights(sessions));
+    }
+
+    @Test
+    void countSleeplessNights_shouldCountGapBetweenSessions() {
+        List<SleepingSession> sessions = List.of(
+                session("01.10.25 23:00", "02.10.25 07:00", SleepingQuality.GOOD),
+                session("05.10.25 23:00", "06.10.25 07:00", SleepingQuality.GOOD)
+        );
+
+        assertEquals(4, SleepTrackerApp.countSleeplessNights(sessions));
+    }
+
+    @Test
+    void detectChronotype_shouldReturnOwl_whenMostNightsAreOwl() {
+        List<SleepingSession> sessions = List.of(
+                session("01.10.25 23:30", "02.10.25 10:00", SleepingQuality.GOOD),
+                session("02.10.25 23:45", "03.10.25 09:30", SleepingQuality.NORMAL),
+                session("03.10.25 23:10", "04.10.25 10:30", SleepingQuality.GOOD)
+        );
+
+        assertEquals(Chronotype.OWL, SleepTrackerApp.detectChronotype(sessions));
+    }
+
+    @Test
+    void detectChronotype_shouldReturnLark_whenMostNightsAreLark() {
+        List<SleepingSession> sessions = List.of(
+                session("01.10.25 21:30", "02.10.25 06:00", SleepingQuality.GOOD),
+                session("02.10.25 21:45", "03.10.25 06:30", SleepingQuality.NORMAL),
+                session("03.10.25 21:00", "04.10.25 05:30", SleepingQuality.GOOD)
+        );
+
+        assertEquals(Chronotype.LARK, SleepTrackerApp.detectChronotype(sessions));
+    }
+
+    @Test
+    void detectChronotype_shouldReturnPigeon_whenMostNightsArePigeon() {
+        List<SleepingSession> sessions = List.of(
+                session("01.10.25 22:30", "02.10.25 07:30", SleepingQuality.GOOD),
+                session("02.10.25 23:00", "03.10.25 08:00", SleepingQuality.NORMAL),
+                session("03.10.25 22:00", "04.10.25 07:00", SleepingQuality.GOOD)
+        );
+
+        assertEquals(Chronotype.PIGEON, SleepTrackerApp.detectChronotype(sessions));
+    }
+
+    @Test
+    void detectChronotype_shouldReturnPigeon_whenListIsEmpty() {
+        assertEquals(Chronotype.PIGEON, SleepTrackerApp.detectChronotype(List.of()));
+    }
+
+    @Test
+    void detectChronotype_shouldReturnPigeon_whenTieBetweenOwlAndLark() {
+        List<SleepingSession> sessions = List.of(
+                session("01.10.25 23:30", "02.10.25 10:00", SleepingQuality.GOOD),
+                session("02.10.25 21:30", "03.10.25 06:00", SleepingQuality.GOOD)
+        );
+
+        assertEquals(Chronotype.PIGEON, SleepTrackerApp.detectChronotype(sessions));
+    }
+
+    @Test
+    void detectChronotype_shouldIgnoreDaySessions() {
+        List<SleepingSession> sessions = List.of(
+                session("01.10.25 14:00", "01.10.25 15:00", SleepingQuality.GOOD),
+                session("02.10.25 13:00", "02.10.25 14:30", SleepingQuality.NORMAL)
+        );
+
+        assertEquals(Chronotype.PIGEON, SleepTrackerApp.detectChronotype(sessions));
+    }
 }
