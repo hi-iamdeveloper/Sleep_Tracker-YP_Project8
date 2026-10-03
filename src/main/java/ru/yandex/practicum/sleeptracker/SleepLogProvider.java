@@ -2,26 +2,31 @@ package ru.yandex.practicum.sleeptracker;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.nio.file.*;
 
 public class SleepLogProvider {
 
-    private final String PATH;
-    List<String> sleepLog;
+    private final String path;
+    private final List<String> sleepLog;
 
-    public SleepLogProvider(String PATH) throws SleepLogIsMissing, SleepLogIsEmpty {
-        this.PATH = PATH;
-        Path path = Path.of(PATH);
+    public SleepLogProvider(String path) throws SleepLogIsMissing, SleepLogIsEmpty {
+        this.path = path;
+        Path file = Path.of(path);
+
+        if (Files.notExists(file)) {
+            throw new SleepLogIsMissing(path, "Файл не найден");
+        }
 
         try {
-            sleepLog = Files.readAllLines(path, StandardCharsets.UTF_8);
+            this.sleepLog = Files.readAllLines(file, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new SleepLogIsMissing(PATH, "Не удалось прочитать файл: ");
+            throw new SleepLogIsMissing(path, "Не удалось прочитать файл", e);
         }
 
         if (sleepLog.isEmpty()) {
-            throw new SleepLogIsEmpty(PATH, "Файл пуст:");
+            throw new SleepLogIsEmpty(path, "Лог пуст");
         }
     }
 
@@ -29,10 +34,7 @@ public class SleepLogProvider {
         return sleepLog;
     }
 
-    @Override
-    public String toString() {
-        return "SleepLogProvider{" +
-                "sleepLog=" + sleepLog +
-                '}';
+    public String getPath() {
+        return path;
     }
 }
