@@ -1,5 +1,6 @@
 package ru.yandex.practicum.sleeptracker;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,6 +28,11 @@ public class SleepTrackerApp {
         List<SleepingSession> sleepingSessions = sleepingSessionsParsing(sleepLogProvider);
 
         System.out.println("Всего сессий сна: " + countSessions(sleepingSessions));
+        System.out.println("Максимальная сессия сна: " + maxSleepDuration(sleepingSessions) + " минут");
+        System.out.println("Минимальная сессия сна: " + minSleepDuration(sleepingSessions) + " минут");
+        System.out.println("Средняя продолжительность сна: " + averageSleepDuration(sleepingSessions) + " минут");
+        System.out.println("Количество ночей с плохим сном: " + countBadQualitySessions(sleepingSessions));
+
 
     }
 
@@ -51,6 +57,41 @@ public class SleepTrackerApp {
     public static int countSessions(List<SleepingSession> sessions) {
         return sessions.size();
     }
+
+    public static long sleepDuration(SleepingSession sleepingSession) {
+
+        return Duration.between(sleepingSession.getStart(), sleepingSession.getEnd()).toMinutes();
+
+    }
+
+    public static long minSleepDuration(List<SleepingSession> sessions) {
+        return sessions.stream()
+                .mapToLong(SleepTrackerApp::sleepDuration)
+                .min()
+                .orElseThrow(() -> new IllegalStateException("Список сессий пуст"));
+    }
+
+    public static long maxSleepDuration(List<SleepingSession> sessions) {
+        return sessions.stream()
+                .mapToLong(SleepTrackerApp::sleepDuration)
+                .max()
+                .orElseThrow(() -> new IllegalStateException("Список сессий пуст"));
+    }
+
+    public static int averageSleepDuration(List<SleepingSession> sessions) {
+        return (int) sessions.stream()
+                .mapToLong(SleepTrackerApp::sleepDuration)
+                .average()
+                .orElseThrow(() -> new IllegalStateException("Список сессий пуст"));
+    }
+
+    public static long countBadQualitySessions(List<SleepingSession> sessions) {
+        return sessions.stream()
+                .filter(s -> s.getQuality() == SleepingQuality.BAD)
+                .count();
+    }
+
+
 
 }
 
