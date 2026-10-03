@@ -1,7 +1,6 @@
 package ru.yandex.practicum.sleeptracker;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class SleepingSession {
 
