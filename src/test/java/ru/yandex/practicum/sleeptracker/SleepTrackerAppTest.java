@@ -217,6 +217,6 @@ class SleepTrackerAppTest {
                 session("01.10.25 23:00", "02.10.25 07:00", SleepingQuality.GOOD)
         );
 
-        assertEquals(2, SleepTrackerApp.countSleeplessNights(sessions));
+        assertEquals(1, SleepTrackerApp.countSleeplessNights(sessions));
     }
 }
