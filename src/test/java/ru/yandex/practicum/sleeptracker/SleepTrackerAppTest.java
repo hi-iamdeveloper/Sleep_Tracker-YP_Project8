@@ -127,8 +127,14 @@ class SleepTrackerAppTest {
         assertEquals(2, SleepTrackerApp.countBadQualitySessions(sessions));
     }
 
+    /*сессия: 01.10.25 23:00 → 02.10.25 07:00
+    первая ночь - 01.10 'после 12:00' ее окно 01.10 00:00–06:00 сессия не пересекает — старт в 23:00
+    значит ночь 01.10 бессонная, а покрыта ночь 02.10
+    но логирование начинается только в 01.10 23:00, а окно 01.10 00:00–06:00 до этого
+    считать ли такую ночь бессонной или игнорировать ? */
+
     @Test
-    void countSleeplessNights_shouldCountFirstNight_whenSessionStartsInEvening() {
+    void untFirstNight_whenSessionStartsInEvening() {
         List<SleepingSession> sessions = List.of(
                 session("01.10.25 23:00", "02.10.25 07:00", SleepingQuality.GOOD)
         );
@@ -202,5 +208,15 @@ class SleepTrackerAppTest {
         );
 
         assertEquals(Chronotype.PIGEON, SleepTrackerApp.detectChronotype(sessions));
+    }
+
+    @Test
+    void countSleeplessNights_shouldHandleMonthBoundary() {
+        List<SleepingSession> sessions = List.of(
+                session("30.09.25 23:00", "01.10.25 07:00", SleepingQuality.GOOD),
+                session("01.10.25 23:00", "02.10.25 07:00", SleepingQuality.GOOD)
+        );
+
+        assertEquals(2, SleepTrackerApp.countSleeplessNights(sessions));
     }
 }

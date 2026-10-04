@@ -21,8 +21,14 @@ public class SleepTrackerApp {
 
         SleepLogProvider sleepLogProvider;
 
+        if (args.length == 0) {
+            System.err.println("Укажите путь к файлу\nRun → Edit Configurations…\n"
+                    + "Создайте новый Application и в поле Program arguments впишите путь к файлу");
+            return;
+        }
+
         try {
-            sleepLogProvider = new SleepLogProvider("src/main/resources/sleep_log.txt");
+            sleepLogProvider = new SleepLogProvider(args[0]);
         } catch (SleepLogIsMissing e) {
             System.err.println("Ошибка: " + e.getMessage() + " '" + e.getPath() + "'");
             return;
